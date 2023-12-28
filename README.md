@@ -21,6 +21,9 @@ Follow these simple steps to get started with the extension:
   Enable "Developer mode" in the top-right corner.
   Click on "Load unpacked" and select the build folder.
 #### Mozilla Firefox
+- open `public/manifest.json` 
+- replace `"service_worker": "./static/js/background.js"` with `"scripts": ["./static/js/background.js"]`
+- run the command `yarn build`
 - Open `about:debugging#/runtime/this-firefox` in your Firefox browser.
   Click on "Load Temporary Add-on" and select the manifest.json file inside the build folder.
 
