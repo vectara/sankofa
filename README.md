@@ -6,21 +6,27 @@
 Follow these simple steps to get started with the extension:
 
 1. **Clone the GitHub Repository**
-   ```bash
-   git clone https://github.com/vectara/browser-extension.git
+    ```bash
+    git clone https://github.com/vectara/browser-extension.git
+    cd browser-extension
+    ```
 2. **Install dependencies**
-   ```bash
+    ```bash
     yarn install
+    ```
 3. **Run build command**
-   ```bash
+    ```bash
     yarn build
-4. **Running extension in different browsers**
+    ```
 
-#### Chrome
+## Running the browser extension
+
+### Chrome
 - Open `chrome://extensions/` in your Chrome browser.
   Enable "Developer mode" in the top-right corner.
   Click on "Load unpacked" and select the build folder.
-#### Mozilla Firefox
+
+### Mozilla Firefox
 - open `public/manifest.json` 
 - replace `"service_worker": "./static/js/background.js"` with `"scripts": ["./static/js/background.js"]`
 - run the command `yarn build`
