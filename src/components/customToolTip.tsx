@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 // import './CustomTooltip.css'; // Add your custom styles here
+import '../style.scss'
 
 const CustomTooltip = ({ text }:{text:string}) => {
     const [isTooltipVisible, setTooltipVisible] = useState(false);
