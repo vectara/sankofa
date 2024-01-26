@@ -39,14 +39,15 @@
   },
   "manifest": {
     "host_permissions": [
-      "https://*/*"
+      "https://api.vectara.com/*"
     ],
     "permissions": [
       "storage",
       "tabs",
       "activeTab",
       "webRequest",
-      "contextMenus"
+      "contextMenus",
+      "notifications"
     ],
     "browser_specific_settings": {
       "gecko": {

@@ -1,8 +1,15 @@
 import {Storage} from "@plasmohq/storage";
 
 export async function getCurrentTab() {
-    const list = await chrome.tabs.query({ active: true, currentWindow: true })
-    return list[0]
+    try {
+        const list = await chrome.tabs.query({ active: true, currentWindow: true })
+        return list[0]
+    }
+
+    catch (error) {
+        const list = await browser.tabs.query({ active: true, currentWindow: true })
+        return list[0]
+    }
 }
 
 export async function getVectaraCreds () {
@@ -26,7 +33,25 @@ export async function getExtConfig () {
     return {customerId, corpusId, apiKey, delayToSend, autoSendAllPages, domainsToSkip}
 }
 
+export async function setConfig({customerId, apiKey, corpusId, autoSendAllPages, delayToSend, domainsToSkip}) {
+
+    const storage = new Storage()
+    await storage.set("vectaraCustomerId", customerId)
+    await storage.set("vectaraApiKey", apiKey)
+    await storage.set("vectaraCorpusId", corpusId)
+    await storage.set("vectaraAutoSendAllPages", autoSendAllPages)
+    await storage.set("vectaraDelayToSend", String(delayToSend))
+    await storage.set("vectaraDomainsToSkip", domainsToSkip)
+}
+
 export function runTextSearch(paramName: string, value:string | number) {
     const url = chrome.runtime.getURL("/tabs/search.html")
     window.open(`${url}?${paramName}=` + encodeURIComponent(value), '_blank');
+
+}
+
+export function openSettings() {
+    const url = chrome.runtime.getURL("/tabs/settings.html")
+    window.open(url, '_blank');
+
 }

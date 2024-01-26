@@ -1,7 +1,7 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 
 import { Storage } from "@plasmohq/storage"
-import {uploadDataToVectara, uploadFileToVectara} from "../utils";
+import {uploadDocumentToVectara, uploadFileToVectara} from "../utils";
 
 // @ts-ignore
 const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
@@ -35,7 +35,7 @@ const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
                 }
             };
 
-            const response = await uploadDataToVectara(customerId, apiKey, payload)
+            const response = await uploadDocumentToVectara(customerId, apiKey, payload)
             const data = await response.json()
             try {
                 res.send({
@@ -53,7 +53,7 @@ const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
 
         if (message.type === "indexRawHtml") {
             let payload = new FormData()
-            const blob =  new Blob([message.html], { type: "text" })
+            const blob =  new Blob([message.html], { type: "text/html" })
             payload.append('file', blob, message.url)
             const response = await uploadFileToVectara(corpusId, customerId, apiKey, payload)
             const data = await response.json()
@@ -75,7 +75,7 @@ const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
         console.error("logging error", err)
         res.send({
             status: "error",
-            message: "Error while indexing the page"
+            message: "Error while indexing the page."
         })
     }
 }

@@ -1,5 +1,6 @@
 import {Readability} from "@mozilla/readability";
 import {sendToBackground} from "@plasmohq/messaging";
+import {Storage} from "@plasmohq/storage";
 
 function getTitle (document: Document) {
     return document.getElementsByTagName("title")[0].innerHTML
@@ -31,6 +32,20 @@ function getHtml (document: Document) {
 }
 
 export async function sendPageContentToBackground() {
+
+    const storage = new Storage()
+    const domainsToSkip = await storage.get("vectaraDomainsToSkip")
+    const autoSendAllPages = await storage.get("vectaraAutoSendAllPages")
+
+    if ((autoSendAllPages === "true") && domainsToSkip && domainsToSkip.length > 0) {
+        for (const  domain of domainsToSkip) {
+            if (window.location.href.includes(domain)) {
+                return {status: "excluded"}
+            }
+        }
+    }
+
+
     const title = getTitle(document)
     const description = getDescription(document)
     try {
@@ -42,18 +57,24 @@ export async function sendPageContentToBackground() {
             description: description,
             text: text
         }
+
         // @ts-ignore
         return   await sendToBackground({name:"indexPage", body:message})
     }
     catch (e) {
-        const message = {
-            type: "indexRawHtml",
-            url: window.location.href,
-            title: title,
-            description: description,
-            html:  getHtml(document)
+
+        return {
+            status: "error",
+            message: "Something went wrong."
         }
-        // @ts-ignore
-        return await sendToBackground({name: "indexPage", body: message})
+        // const message = {
+        //     type: "indexRawHtml",
+        //     url: window.location.href,
+        //     title: title,
+        //     description: description,
+        //     html:  getHtml(document)
+        // }
+        // // @ts-ignore
+        // return await sendToBackground({name: "indexPage", body: message})
     }
 }

@@ -11,7 +11,6 @@ export default function searchByExample() {
                     let documentClone = document.cloneNode(true);
                     const article = new Readability(documentClone as Document).parse();
                     const text = article ? article.textContent : "";
-                    console.log("I was in the content search By example")
                     res.send(text)
                 }
                 }

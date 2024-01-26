@@ -32,14 +32,12 @@ export async function performSearch(customerId: string, apiKey: string, corpusId
     if (queryType === "queryText") {
         searchRequest["query"][0]["summary"]= [
             {
-                "summarizerPromptName": "vectara-summary-ext-v1.2.0",
                 "maxSummarizedResults": 5,
                 "responseLang": navigator.language.substring(0,2)
             }
         ]
     }
 
-    console.log(searchRequest)
     return await fetch("https://api.vectara.io/v1/query", {
         method: "POST",
         headers: {

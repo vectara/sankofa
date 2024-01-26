@@ -16,10 +16,14 @@ Follow these simple steps to get started with the extension:
     ```bash
     pnpm install
     ```
-3. **Run build command**
+3. **Run build command for chrome**
     ```bash
     pnpm build
     ```
+4**Run build command for firefox**
+    ```bash
+    pnpm build --target=edge-mv3
+    ```   
 
 ## Running the browser extension
 

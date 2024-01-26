@@ -17,7 +17,7 @@ function Header() {
               </a>
               <div style={{marginLeft: "15px"}}>
                   <VuiTextColor color="subdued">
-                      <VuiText size="m">Sankofa</VuiText>
+                      <a href="https://en.wikipedia.org/wiki/Sankofa"><VuiText size="m">Sankofa</VuiText></a>
                   </VuiTextColor>
               </div>
           </VuiFlexContainer>

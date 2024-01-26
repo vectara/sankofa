@@ -10,15 +10,19 @@ import { truncateEnd, truncateStart } from "../ui/utils/truncateString";
 import type {DeserializedSearchResult} from "~types";
 import "./SearchResult.scss";
 import '../style.scss'
+import type { Ref } from "react";
+import {forwardRef} from "react";
 
 type Props = {
     result: DeserializedSearchResult;
     position: number;
+    isSelected: boolean;
 };
 
 const CONTEXT_MAX_LENGTH = 200;
 
-export const SearchResult = ({ result, position }: Props) => {
+export const SearchResult = forwardRef<HTMLDivElement | null, Props>(
+    ({ result, position, isSelected }: Props, ref) => {
         const {
             source,
             title,
@@ -28,6 +32,8 @@ export const SearchResult = ({ result, position }: Props) => {
 
         return (
             <VuiSearchResult
+                isSelected={isSelected}
+                ref={ref}
                 result={{
                     title,
                     url,
@@ -58,3 +64,4 @@ export const SearchResult = ({ result, position }: Props) => {
             />
         );
     }
+);

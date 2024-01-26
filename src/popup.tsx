@@ -1,7 +1,6 @@
 import {useEffect, useState} from "react"
 import {sendToContentScript} from "@plasmohq/messaging"
-import {getVectaraCreds, getCurrentTab, runTextSearch} from "~utils";
-import VectaraConfig from "~options";
+import {getVectaraCreds, getCurrentTab, runTextSearch, openSettings} from "~utils";
 
 import './style.scss'
 import {
@@ -22,7 +21,7 @@ function IndexPopup() {
     const [pageIndexedSuccessfully, setPageIndexedSuccessfully] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
-    const [editVectaraConfig, toggleEditVectaraConfig] = useState(false)
+    const [isDomainExcluded ,  setIsDomainExcluded] = useState(false)
     useEffect(()=>{
         const getExistingConfig = async () => {
 
@@ -36,11 +35,15 @@ function IndexPopup() {
         getExistingConfig().catch(error => {console.log(error)})
 
     }, [])
+
     const handleAddToVectara = async () => {
         setLoading(true)
         const res = await sendToContentScript({ name: "indexPageViaUi" })
         if (res.status === "OK" || res.status === "CONFLICT"){
             setPageIndexedSuccessfully(true)
+        }
+        else if (res.status === "excluded") {
+            setIsDomainExcluded(true)
         }
         else {
             setError(res.message)
@@ -48,11 +51,6 @@ function IndexPopup() {
 
         setLoading(false)
     }
-
-    const toggleVectaraConfig = () => {
-        toggleEditVectaraConfig(!editVectaraConfig)
-    }
-
     const searchButtonOnClick = () => {
         setError("")
         if (searchValue) {
@@ -76,105 +74,115 @@ function IndexPopup() {
 
     if (!isConfigAvailable) {
         return  (
-            <VuiFlexContainer direction="column" justifyContent="center" alignItems="center" className="popup">
-                <VuiSpacer size="m" />
-                <VuiFlexItem>
-                    <VuiTitle size="s"><h1>Vectara settings not found</h1></VuiTitle>
-                </VuiFlexItem>
-                <VuiFlexItem>
-                    <VuiText>Add settings to enable the extension.</VuiText>
-                </VuiFlexItem>
-                <VuiFlexItem>
-                    <VuiButtonPrimary
-                        onClick={()=> {
-                            toggleEditVectaraConfig(!editVectaraConfig)
-                            setIsConfigAvailable(true)
-                        }}
-                        color="primary">
-                        Let's Configure
-                    </VuiButtonPrimary>
-                </VuiFlexItem>
-            </VuiFlexContainer>
+            <div id="configurePopup" >
+                <VuiFlexContainer direction="column" justifyContent="center" alignItems="center" className="popup">
+                    <VuiSpacer size="m" />
+                    <VuiFlexItem>
+                        <VuiTitle size="s"><h1>Vectara settings not found</h1></VuiTitle>
+                    </VuiFlexItem>
+                    <VuiFlexItem>
+                        <VuiText>Add settings to enable the extension.</VuiText>
+                    </VuiFlexItem>
+                    <VuiFlexItem>
+                        <VuiButtonPrimary
+                            onClick={()=> {
+                                openSettings()
+                            }}
+                            color="primary">
+                            Let's Configure
+                        </VuiButtonPrimary>
+                    </VuiFlexItem>
+                </VuiFlexContainer>
+            </div>
         )
     }
     return (
-        <VuiFlexContainer justifyContent="center" alignItems="center" direction="column" className="popup">
-            {
-                editVectaraConfig ? <VectaraConfig toggleVectaraConfig={toggleVectaraConfig} /> :
-                    <>
-                        <VuiFlexContainer fullWidth justifyContent="spaceBetween" alignItems="baseline">
-                            <VuiFlexItem grow={1}>
-                                <VuiTitle size="xs">
-                                    <h5>Index/Search</h5>
-                                </VuiTitle>
-                                <VuiSpacer size="m" />
-                            </VuiFlexItem>
-                            <VuiFlexItem>
-                                <VuiIconButton icon={ <MdOutlineSettings />} color="neutral"
-                                               onClick={()=> toggleEditVectaraConfig(!editVectaraConfig)}
-                                />
-                            </VuiFlexItem>
-                        </VuiFlexContainer>
-                        <VuiFlexContainer>
-                            <VuiFlexItem>
-                                <VuiSearchInput className="searchInputWidth"
-                                                autoFocus placeholder="Ask a question"
-                                                value={searchValue}
-                                                onChange={(e)=> setSearchValue(e.target.value)}
-                                                onSubmit={(e) => { e.preventDefault(); searchButtonOnClick() }} />
-                            </VuiFlexItem>
-                            <VuiFlexItem>
-                                <VuiButtonPrimary color="primary" size="m" onClick={searchButtonOnClick}> Search </VuiButtonPrimary>
-                            </VuiFlexItem>
-                        </VuiFlexContainer>
-                        <VuiSpacer size="s" />
-                        {loading ? <VuiSpinner size="xs" /> : null}
-                        <VuiSpacer size="l" />
-                        <VuiFlexContainer justifyContent="spaceBetween" alignItems="center">
-                            <VuiFlexItem>
-                                {
-                                    pageIndexedSuccessfully ? <VuiFlexContainer alignItems="center" spacing="xs">
-                                            <VuiFlexItem grow={false}>
-                                                <VuiIcon color="success">
-                                                    <BiCheck />
-                                                </VuiIcon>
-                                            </VuiFlexItem>
+        <div id="indexPopup">
+            <VuiFlexContainer justifyContent="center" alignItems="center" direction="column" className="popup">
 
-                                            <VuiFlexItem grow={false}>
-                                                <VuiText>
-                                                    <p>
-                                                        <VuiTextColor color="success">Page indexed</VuiTextColor>
-                                                    </p>
-                                                </VuiText>
-                                            </VuiFlexItem>
-                                        </VuiFlexContainer>
-                                        : <VuiButtonPrimary color="primary" size="m" onClick={handleAddToVectara}>
-                                            Index Page
-                                        </VuiButtonPrimary>
-                                }
-                            </VuiFlexItem>
-                            <VuiFlexItem>
-                                <VuiButtonPrimary color="primary" size="m" onClick={handleFindSimilar}> Find Similar Pages </VuiButtonPrimary>
-                            </VuiFlexItem>
-                        </VuiFlexContainer>
+                <VuiFlexContainer fullWidth justifyContent="spaceBetween" alignItems="baseline">
+                    <VuiFlexItem grow={1}>
+                        <VuiTitle size="xs">
+                            <h5>Index/Search</h5>
+                        </VuiTitle>
+                        <VuiSpacer size="m" />
+                    </VuiFlexItem>
+                    <VuiFlexItem>
+                        <VuiIconButton icon={ <MdOutlineSettings size={200} />} color="neutral"
+                                       onClick={()=> openSettings()}
+                        />
+                    </VuiFlexItem>
+                </VuiFlexContainer>
+                <VuiFlexContainer>
+                    <VuiFlexItem>
+                        <VuiSearchInput className="searchInputWidth"
+                                        autoFocus placeholder="Ask a question"
+                                        value={searchValue}
+                                        onChange={(e)=> setSearchValue(e.target.value)}
+                                        onSubmit={(e) => { e.preventDefault(); searchButtonOnClick() }} />
+                    </VuiFlexItem>
+                    <VuiFlexItem>
+                        <VuiButtonPrimary color="primary" size="m" onClick={searchButtonOnClick}> Search </VuiButtonPrimary>
+                    </VuiFlexItem>
+                </VuiFlexContainer>
+                <VuiSpacer size="s" />
+                {loading ? <VuiSpinner size="xs" /> : null}
+                <VuiSpacer size="l" />
+                <VuiFlexContainer justifyContent="spaceBetween" alignItems="center">
+                    <VuiFlexItem>
                         {
-                            error ? <>
-                                <VuiSpacer size="m" />
-                                <VuiCallout
-                                    size="s"
-                                    color="danger"
-                                    title="Oops!"
-                                    headingElement="h5"
-                                    onDismiss={() => (setError(""))}
-                                >
-                                    {error}
-                                </VuiCallout>
-                            </>: null
-                        }
-                    </>
-            }
+                            isDomainExcluded ? <VuiFlexContainer alignItems="center" spacing="xs">
 
-        </VuiFlexContainer>
+                                    <VuiFlexItem grow={false}>
+                                        <VuiText>
+                                            <p>
+                                                <VuiTextColor color="danger">Domain is excluded</VuiTextColor>
+                                            </p>
+                                        </VuiText>
+                                    </VuiFlexItem>
+                                </VuiFlexContainer> :
+                                pageIndexedSuccessfully ? <VuiFlexContainer alignItems="center" spacing="xs">
+                                        <VuiFlexItem grow={false}>
+                                            <VuiIcon color="success">
+                                                <BiCheck height="20px" width="20px" />
+                                            </VuiIcon>
+                                        </VuiFlexItem>
+
+                                        <VuiFlexItem grow={false}>
+                                            <VuiText>
+                                                <p>
+                                                    <VuiTextColor color="success">Page indexed</VuiTextColor>
+                                                </p>
+                                            </VuiText>
+                                        </VuiFlexItem>
+                                    </VuiFlexContainer>
+                                    : <VuiButtonPrimary color="primary" size="m" onClick={handleAddToVectara}>
+                                        Index Page
+                                    </VuiButtonPrimary>
+                        }
+                    </VuiFlexItem>
+                    <VuiFlexItem>
+                        <VuiButtonPrimary color="primary" size="m" onClick={handleFindSimilar}> Find Similar Pages </VuiButtonPrimary>
+                    </VuiFlexItem>
+                </VuiFlexContainer>
+                <VuiSpacer size="xs"/>
+                {
+                    error && <>
+                            <VuiSpacer size="m" />
+                            <VuiCallout
+                                size="s"
+                                color="danger"
+                                title="Oops!"
+                                headingElement="h5"
+                                onDismiss={() => (setError(""))}
+                            >
+                                {error}
+                            </VuiCallout>
+                        </>
+                }
+            </VuiFlexContainer>
+        </div>
+
     );
 }
 

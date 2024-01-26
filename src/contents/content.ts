@@ -13,7 +13,6 @@ async function getIntervalConfig() {
 }
 
 async function startTimer() {
-    console.log("Content Script is loaded and time started")
     startTime = new Date().getTime()
 
     // TODO: add check if page already exits then don't start the script
@@ -35,8 +34,6 @@ async function processPage() {
     const currentTime = new Date().getTime();
     const elapsedTime = currentTime - startTime;
     if (elapsedTime >= delayToSend) {
-        console.log("Total elapsed Time --->", elapsedTime/1000)
-        console.log("sending the request to processPage")
         stopTimer()
         sendPageContentToBackground()
     }

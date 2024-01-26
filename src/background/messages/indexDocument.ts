@@ -1,10 +1,11 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging"
+import {uploadDocumentToVectara} from "~background/utils";
 
 // @ts-ignore
 const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
     try {
         const {customerId, apiKey, corpusId} = req.body
-        let payload = JSON.stringify({
+        let payload = {
             "customerId": customerId,
             "corpusId": corpusId,
             "document": {
@@ -12,19 +13,11 @@ const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
                 "title": "test-doc",
                 "description": "Testing the credentials of vectara"
             }
-        });
-        const response = await fetch("https://api.vectara.io/v1/index", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'customer-id': customerId,
-                'x-api-key': apiKey
-            },
-            body: payload
-        })
+        };
 
+        const response = await uploadDocumentToVectara(customerId, apiKey, payload)
         const data = await response.json()
+        console.log(data)
         try {
             res.send({
                 status: data.status.code,
@@ -42,7 +35,7 @@ const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
         console.error("logging error", err)
         res.send({
             status: "error",
-            message: "Invalid credentials"
+            message: err.message
         })
     }
 }

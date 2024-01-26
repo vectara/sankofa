@@ -1,11 +1,10 @@
-export async function uploadDataToVectara(customerId:string, apiKey:string, payload:object) {
+export async function uploadDocumentToVectara(customerId:string, apiKey:string, payload:object) {
     const options = {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             'customer-id': customerId,
             'x-api-key': apiKey,
-            "X-Source": "extension",
         },
         body: JSON.stringify(payload)
     }
@@ -19,8 +18,7 @@ export async function uploadFileToVectara(corpusId:string, customerId:string, ap
         headers: {
             "Content-Type": "multipart/form-data",
             'customer-id': customerId,
-            'x-api-key': apiKey,
-            "X-Source": "extension",
+            'x-api-key': apiKey
         },
         data : payload
     }
