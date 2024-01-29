@@ -8,7 +8,7 @@ visited or find pages similar to a page you are now visiting in your browser.
 
 ## Installation
 
-## Using the zip file
+## Using the pre-packaged zip files
 
 **Google Chrome**
 - Download the [sankofa-chrome](https://github.com/vectara/sankofa/blob/main/bin/sankofa-chrome.zip) and unzip.
