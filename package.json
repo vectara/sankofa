@@ -1,52 +1,58 @@
 {
-  "name": "mnemosyne-ext",
-  "version": "0.1.0",
-  "private": true,
+  "name": "sankofa",
+  "displayName": "Sankofa",
+  "version": "0.0.1",
+  "description": "Remembering everything about the sites you visit in your own personal history so you don't have to.",
+  "author": "vectara",
+  "scripts": {
+    "dev": "plasmo dev",
+    "build": "plasmo build",
+    "test": "plasmo test"
+  },
   "dependencies": {
     "@mozilla/readability": "^0.5.0",
-    "@testing-library/jest-dom": "^5.14.1",
-    "@testing-library/react": "^13.0.0",
-    "@testing-library/user-event": "^13.2.1",
-    "@types/jest": "^27.0.1",
-    "@types/node": "^16.7.13",
-    "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0",
+    "@plasmohq/messaging": "^0.6.1",
+    "@plasmohq/storage": "^1.9.0",
+    "@types/lodash": "^4.14.202",
+    "@types/prismjs": "^1.26.3",
     "axios": "^1.6.3",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1",
-    "typescript": "^4.4.2",
-    "web-vitals": "^2.1.0",
-    "webextension-polyfill": "^0.10.0"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "INLINE_RUNTIME_CHUNK=false react-app-rewired build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "classnames": "^2.5.1",
+    "lodash": "^4.17.21",
+    "markdown-to-jsx": "^7.4.0",
+    "plasmo": "0.84.0",
+    "prismjs": "^1.29.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-focus-on": "^3.9.1",
+    "react-icons": "^5.0.1",
+    "react-router-dom": "^6.21.2",
+    "sass": "^1.69.7"
   },
   "devDependencies": {
-    "@types/chrome": "^0.0.254",
-    "@types/webextension-polyfill": "^0.10.7",
-    "customize-cra": "^1.0.0",
-    "react-app-rewired": "^2.2.1"
+    "@ianvs/prettier-plugin-sort-imports": "4.1.1",
+    "@types/chrome": "0.0.251",
+    "@types/node": "20.9.0",
+    "@types/react": "18.2.37",
+    "@types/react-dom": "18.2.15",
+    "prettier": "3.0.3",
+    "typescript": "5.2.2"
+  },
+  "manifest": {
+    "host_permissions": [
+      "https://api.vectara.com/*"
+    ],
+    "permissions": [
+      "storage",
+      "tabs",
+      "activeTab",
+      "webRequest",
+      "contextMenus",
+      "notifications"
+    ],
+    "browser_specific_settings": {
+      "gecko": {
+        "id": "firefox-addon@vectara.com"
+      }
+    }
   }
 }

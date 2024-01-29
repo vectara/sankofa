@@ -1,60 +1,79 @@
-import browser from "webextension-polyfill";
-import {getDataFromStorage, uploadDataToVectara, uploadFileToVectara} from "../utils";
+import {Storage} from "@plasmohq/storage";
+import {uploadDocumentToVectara} from "~background/utils";
 
-const sendToVectara = async (message:any) => {
-    const customerId = await getDataFromStorage("vectaraCustomerId")
-    const apiKey = await getDataFromStorage("vectaraApiKey")
-    const corpusId = await getDataFromStorage("vectaraCorpusId")
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.contextMenus.create({
+        contexts: ['selection'],
+        title: 'Search My Vectara',
+        id: 'searchByTextContext',
+    });
+});
 
-    if (customerId === "" || apiKey === "" || corpusId === "") return true
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.contextMenus.create({
+        contexts: ['selection'],
+        title: 'Index to My Vectara',
+        id: 'indexByTextContext',
+    });
+});
 
-    const metadata = {
-        'url': message.url,
-        'pageViewTime': Math.floor(Date.now() / 1000), // TODO: Calculate time actually spent
-    };
-    if (message.type === "sendToVectara") {
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+    if(info.menuItemId === "searchByTextContext" ) {
+        const url = chrome.runtime.getURL("../tabs/search.html")
+        chrome.tabs.create({'url':`${url}?queryText=` + encodeURIComponent(info.selectionText)});
+    }
+
+    if(info.menuItemId === "indexByTextContext") {
+        const storage = new Storage()
+        const customerId = await storage.get("vectaraCustomerId")
+        const apiKey = await storage.get("vectaraApiKey")
+        const corpusId = await storage.get("vectaraCorpusId")
+
+
+        const metadata = {
+            'url': tab.url,
+            'pageViewTime': Math.floor(Date.now() / 1000),
+        };
         let payload = {
-            'customerId': parseInt(customerId),
-            'corpusId': parseInt(corpusId),
-            'document': {
-                'title': message.title ? message.title : '',
-                'documentId': message.url,
-                'description': message.description ? message.description : '',
+            "customerId": customerId,
+            "corpusId": corpusId,
+            "document": {
+                "documentId": String(Date.now()),
+                "title": tab.title,
                 'metadataJson': JSON.stringify(metadata),
                 'section': [
                     {
-                        'text': message.text
+                        'text': info.selectionText
                     }
                 ]
             }
         };
 
-       await uploadDataToVectara(customerId, apiKey, payload)
-    }
-
-    if (message.type === "sendRawHtmlToVectara") {
-        let payload = new FormData()
-        payload.append('file', message.html, message.url )
-        await uploadFileToVectara(customerId, apiKey, payload)
-    }
-
-}
-
-browser.contextMenus.create({
-    contexts: ['selection'],
-    title: 'Search My Vectara',
-    id: 'searchByTextContext',
-});
-browser.contextMenus.onClicked.addListener((info, tab) => {
-    //@ts-ignore
-    browser.tabs.create({'url':'search.html?q=' + encodeURIComponent(info.selectionText)});
-});
-
-// Listen for a message from the content script
-browser.runtime.onMessage.addListener( async(message, sender, sendResponse) => {
-    if (message.type === 'sendToVectara') {
-        if (message.delay === 'immediate') {
-            await sendToVectara(message)
+        const response = await uploadDocumentToVectara(customerId, apiKey, payload)
+        const data = await response.json()
+        const statusCode =  data.status.code
+        let message: string;
+        if (statusCode === "OK" || statusCode === "CONFLICT"){
+            message = "Text indexed to vectara successfully."
         }
+        else {
+            message = "Something went wrong while indexing the text."
+        }
+        const icons = chrome.runtime.getManifest().icons
+        let iconUrl: string
+        if(icons['128'].startsWith('moz-extension://')) {
+            iconUrl = icons['128']
+        }
+        else {
+            iconUrl = chrome.runtime.getURL(`/${icons['128']}`)
+        }
+
+        chrome.notifications.create(`indexByTextNotification-${Date.now()}`, {
+            type: 'basic',
+            iconUrl: iconUrl,
+            title: '',
+            message: message,
+        });
     }
+
 });

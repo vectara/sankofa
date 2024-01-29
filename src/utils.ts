@@ -1,55 +1,57 @@
-import browser from 'webextension-polyfill';
-import axios from "axios";
+import {Storage} from "@plasmohq/storage";
 
 export async function getCurrentTab() {
-    const list = await browser.tabs.query({ active: true, currentWindow: true })
-    return list[0]
-}
-
-export async function sendMessageToContentScript(tabId:number, message:object) {
-    return browser.tabs.sendMessage(tabId, message);
-}
-
-export async  function getDataFromStorage(key:string) {
-        const result = await browser.storage.sync.get(key)
-        return result && result[key] ? result[key] : ""
-}
-
-export async function uploadDataToVectara(customerId:string, apiKey:string, payload:object) {
-    const response = await fetch("https://api.vectara.io/v1/index", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            'customer-id': customerId,
-            'x-api-key': apiKey
-        },
-        body: JSON.stringify(payload)
-    });
-}
-
-export async function uploadFileToVectara(customerId:string, apiKey:string, payload:object) {
-    let config = {
-        method: 'post',
-        maxBodyLength: Infinity,
-        url: "https://api.vectara.io/v1/index",
-        headers: {
-            "Content-Type": "application/json",
-                'customer-id': customerId,
-                'x-api-key': apiKey
-        },
-        data : payload
+    try {
+        const list = await chrome.tabs.query({ active: true, currentWindow: true })
+        return list[0]
     }
-    const response =  await axios.request(config)
+
+    catch (error) {
+        const list = await browser.tabs.query({ active: true, currentWindow: true })
+        return list[0]
+    }
 }
 
-export async function saveVectaraSettings(data:any){
-    await browser.storage.sync.set({ vectaraCustomerId: data.customerId });
-    await browser.storage.sync.set({ vectaraApiKey: data.apiKey });
-    await browser.storage.sync.set({ vectaraCorpusId: data.corpusId });
-    await browser.storage.sync.set({ delayToSend: data.delayToSend });
-    await browser.storage.sync.set({ autoSendAllPages: data.autoSendAllPages})
+export async function getVectaraCreds () {
+    const storage = new Storage()
+    const customerId = await storage.get("vectaraCustomerId")
+    const apiKey = await storage.get("vectaraApiKey")
+    const corpusId = await storage.get("vectaraCorpusId")
+
+    return {customerId, corpusId, apiKey}
 }
 
-export function runTextSearch(textToSearch:string) {
-    window.open('search.html?q=' + encodeURIComponent(textToSearch), '_blank');
+export async function getExtConfig () {
+    const storage = new Storage()
+    const customerId = await storage.get("vectaraCustomerId")
+    const apiKey = await storage.get("vectaraApiKey")
+    const corpusId = await storage.get("vectaraCorpusId")
+    const autoSendAllPages = await storage.get("vectaraAutoSendAllPages")
+    const delayToSend = await storage.get("vectaraDelayToSend")
+    const domainsToSkip = await storage.get("vectaraDomainsToSkip") || [""]
+
+    return {customerId, corpusId, apiKey, delayToSend, autoSendAllPages, domainsToSkip}
+}
+
+export async function setConfig({customerId, apiKey, corpusId, autoSendAllPages, delayToSend, domainsToSkip}) {
+
+    const storage = new Storage()
+    await storage.set("vectaraCustomerId", customerId)
+    await storage.set("vectaraApiKey", apiKey)
+    await storage.set("vectaraCorpusId", corpusId)
+    await storage.set("vectaraAutoSendAllPages", autoSendAllPages)
+    await storage.set("vectaraDelayToSend", String(delayToSend))
+    await storage.set("vectaraDomainsToSkip", domainsToSkip)
+}
+
+export function runTextSearch(paramName: string, value:string | number) {
+    const url = chrome.runtime.getURL("/tabs/search.html")
+    window.open(`${url}?${paramName}=` + encodeURIComponent(value), '_blank');
+
+}
+
+export function openSettings() {
+    const url = chrome.runtime.getURL("/tabs/settings.html")
+    window.open(url, '_blank');
+
 }

@@ -1,0 +1,20 @@
+@import "../ui/styleUtils/index.scss";
+
+.searchResultSiteCategory {
+  overflow-wrap: anywhere;
+}
+
+@media screen and (max-width: 524px) {
+  .searchResultFilterGroup {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+}
+
+.searchInputContainer {
+  width: 700px;
+}
+
+.searchSpinnerMarginTop {
+  margin-top: 10%;
+}
