@@ -29,7 +29,6 @@ Follow these simple steps to get started with the extension:
     pnpm build --target=edge-mv3
     ```   
 
-
 ## Running the browser extension
 
 ### Chrome
