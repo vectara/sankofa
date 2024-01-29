@@ -43,9 +43,7 @@
     ],
     "permissions": [
       "storage",
-      "tabs",
       "activeTab",
-      "webRequest",
       "contextMenus",
       "notifications"
     ],
