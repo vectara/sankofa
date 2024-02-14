@@ -123,7 +123,7 @@ function IndexPopup() {
                                         onSubmit={(e) => { e.preventDefault(); searchButtonOnClick() }} />
                         <VuiSpacer size="xs" />
                         <VuiCheckbox
-                            label="Skip summary(search only)"
+                            label="Skip summary (search only)"
                             onChange={() => {
                                 saveSkipSummary(!skipSummary).catch(error => console.log(error))
                                 setSkipSummary(!skipSummary)
