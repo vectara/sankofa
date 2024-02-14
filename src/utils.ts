@@ -12,13 +12,19 @@ export async function getCurrentTab() {
     }
 }
 
+export async function saveSkipSummary(skipSummary: boolean) {
+    const storage = new Storage()
+    await storage.set("vectaraSkipSummary", skipSummary)
+}
+
 export async function getVectaraCreds () {
     const storage = new Storage()
     const customerId = await storage.get("vectaraCustomerId")
     const apiKey = await storage.get("vectaraApiKey")
     const corpusId = await storage.get("vectaraCorpusId")
+    const skipSummary = await storage.get("vectaraSkipSummary")
 
-    return {customerId, corpusId, apiKey}
+    return {customerId, corpusId, apiKey, skipSummary}
 }
 
 export async function getExtConfig () {
@@ -44,9 +50,9 @@ export async function setConfig({customerId, apiKey, corpusId, autoSendAllPages,
     await storage.set("vectaraDomainsToSkip", domainsToSkip)
 }
 
-export function runTextSearch(paramName: string, value:string | number) {
+export function runTextSearch(paramName: string, value:string | number, skipSummary: boolean=false) {
     const url = chrome.runtime.getURL("/tabs/search.html")
-    window.open(`${url}?${paramName}=` + encodeURIComponent(value), '_blank');
+    window.open(`${url}?${paramName}=${encodeURIComponent(value)}&skipSummary=${skipSummary}`, '_blank');
 
 }
 

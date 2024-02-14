@@ -1,7 +1,7 @@
 import type {DeserializedSearchResult, DocMetadata} from "../types";
 import {parseSnippet} from "~parseSnippet";
 
-export async function performSearch(customerId: string, apiKey: string, corpusId: string, queryText: string, queryType: string) {
+export async function performSearch(customerId: string, apiKey: string, corpusId: string, queryText: string, queryType: string, skipSummary: string="false" ) {
     let searchRequest = {
         'query': [
             {
@@ -28,8 +28,9 @@ export async function performSearch(customerId: string, apiKey: string, corpusId
     if (queryType !== "queryText") {
         searchRequest["query"][0]["corpusKey"]["semantics"] = "RESPONSE"
     }
+    console.log(skipSummary)
 
-    if (queryType === "queryText") {
+    if (queryType === "queryText" && skipSummary === "false") {
         searchRequest["query"][0]["summary"]= [
             {
                 "maxSummarizedResults": 5,

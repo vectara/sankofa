@@ -65,16 +65,7 @@ export async function sendPageContentToBackground() {
 
         return {
             status: "error",
-            message: "Something went wrong."
+            message: e.message
         }
-        // const message = {
-        //     type: "indexRawHtml",
-        //     url: window.location.href,
-        //     title: title,
-        //     description: description,
-        //     html:  getHtml(document)
-        // }
-        // // @ts-ignore
-        // return await sendToBackground({name: "indexPage", body: message})
     }
 }

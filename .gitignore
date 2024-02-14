@@ -32,5 +32,4 @@ dist/
 # typescript
 .tsbuildinfo
 
- pnpm-lock.yaml
- .idea/
+.idea/

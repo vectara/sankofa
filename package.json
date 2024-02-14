@@ -1,7 +1,7 @@
 {
   "name": "sankofa",
   "displayName": "Sankofa",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Remembering everything about the sites you visit in your own personal history so you don't have to.",
   "author": "vectara",
   "scripts": {
@@ -45,7 +45,6 @@
       "storage",
       "tabs",
       "activeTab",
-      "webRequest",
       "contextMenus",
       "notifications"
     ],

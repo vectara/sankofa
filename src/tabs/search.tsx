@@ -33,18 +33,19 @@ export default function searchResultsPage () {
             setLoading(true)
             let queryText: string;
             const tab = await getCurrentTab()
-            const params = tab.url.split("?")[1].split("=")
-            const  paramName= params[0]
-            const value = params[1]
-            if (paramName === "tabId") {
-                queryText = await sendToContentScript({ name: "searchByExample", tabId:Number(value)})
+            const params = new URLSearchParams(tab.url.split('?')[1]);
+            const tabId =  params.get("tabId")
+            const skipSummary = params.get("skipSummary")
+            const  paramName= tabId ? "tabId" : "queryText"
+            if (tabId) {
+                queryText = await sendToContentScript({ name: "searchByExample", tabId:Number(tabId)})
             }
             else {
-                queryText = decodeURIComponent(value)
+                queryText = decodeURIComponent(params.get("queryText"))
                 setSearchText(queryText)
             }
 
-            handleSearchResults(queryText, paramName).catch(err => {
+            handleSearchResults(queryText, paramName, skipSummary).catch(err => {
                 setError(err)
             })
         }
@@ -54,9 +55,9 @@ export default function searchResultsPage () {
 
     }, [])
 
-    const handleSearchResults = async (queryText: string, paramName: string) => {
+    const handleSearchResults = async (queryText: string, paramName: string, skipSummary: string="false") => {
         const {customerId, corpusId, apiKey} = await getVectaraCreds()
-        const response = await performSearch(customerId, apiKey, corpusId, queryText, paramName)
+        const response = await performSearch(customerId, apiKey, corpusId, queryText, paramName, skipSummary)
         const {status} = response
         const data = await response.json()
         if (status === 200) {
