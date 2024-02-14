@@ -1,10 +1,10 @@
 import {useEffect, useState} from "react"
 import {sendToContentScript} from "@plasmohq/messaging"
-import {getVectaraCreds, getCurrentTab, runTextSearch, openSettings} from "~utils";
+import {getVectaraCreds, getCurrentTab, runTextSearch, openSettings, saveSkipSummary} from "~utils";
 
 import './style.scss'
 import {
-    VuiButtonPrimary, VuiCallout,
+    VuiButtonPrimary, VuiCallout, VuiCheckbox,
     VuiFlexContainer,
     VuiFlexItem, VuiIcon,
     VuiIconButton,
@@ -22,14 +22,15 @@ function IndexPopup() {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
     const [isDomainExcluded ,  setIsDomainExcluded] = useState(false)
+    const [skipSummary, setSkipSummary] = useState(false)
     useEffect(()=>{
         const getExistingConfig = async () => {
 
-            const {customerId, corpusId, apiKey } = await getVectaraCreds()
+            const {customerId, corpusId, apiKey, skipSummary } = await getVectaraCreds()
             if (customerId === undefined || apiKey === undefined || corpusId === undefined ) {
                 setIsConfigAvailable(false)
             }
-
+            setSkipSummary(Boolean(skipSummary))
             setConfigChecked(true)
         }
         getExistingConfig().catch(error => {console.log(error)})
@@ -54,7 +55,7 @@ function IndexPopup() {
     const searchButtonOnClick = () => {
         setError("")
         if (searchValue) {
-            runTextSearch("queryText", searchValue)
+            runTextSearch("queryText", searchValue, skipSummary)
         }
     }
     const handleFindSimilar = async () => {
@@ -120,6 +121,16 @@ function IndexPopup() {
                                         value={searchValue}
                                         onChange={(e)=> setSearchValue(e.target.value)}
                                         onSubmit={(e) => { e.preventDefault(); searchButtonOnClick() }} />
+                        <VuiSpacer size="xs" />
+                        <VuiCheckbox
+                            label="Skip summary(search only)"
+                            onChange={() => {
+                                saveSkipSummary(!skipSummary).catch(error => console.log(error))
+                                setSkipSummary(!skipSummary)
+
+                            }}
+                            checked={skipSummary}
+                        />
                     </VuiFlexItem>
                     <VuiFlexItem>
                         <VuiButtonPrimary color="primary" size="m" onClick={searchButtonOnClick}> Search </VuiButtonPrimary>
